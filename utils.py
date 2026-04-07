@@ -36,13 +36,16 @@ def load_config(config_path = "config.yml"):
 def make_sure_directories_exist(config):
     directories_to_create = [
         config["paths"]["figures"],
+
         config["paths"]["saved_models"],
+
         os.path.dirname(config["paths"]["processed_data"]),
     ]
  
     for directory in directories_to_create:
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
+
             print(f"Created directory: '{directory}'")
         else:
             print(f"Directory already exists: '{directory}'")
@@ -74,9 +77,11 @@ def save_figure(figure_name, config, dpi = 150):
 # having to re-train. The file is saved to the path in config.yml.
 def save_model(model, model_name, config):
     model_directory = config["paths"]["saved_models"]
+
     output_path = os.path.join(model_directory, f"{model_name}.pkl")
  
     joblib.dump(model, output_path)
+    
     print(f"Model '{model_name}' saved to '{output_path}'")
 
 # We load a previously saved model from disk. This returns a 
