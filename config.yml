@@ -1,0 +1,120 @@
+# Here are the key configurations for all the notebooks.
+# We want to keep all paths, hyperparameters and settings in one place.
+# Notebooks read values from here instead of using hardcoded values.
+# If something needs changing then change that setting here 
+# instead of across multiple other files.
+
+# Paths
+paths:
+  # This is the downloaded original raw dataset.
+  # NEVER modify this file directly!
+  raw_data: "data/raw/phishing_email.csv"
+ 
+  # The cleaned up and vectorized data is saved here after preprocessing.
+  processed_data: "data/processed/phishing_processed.csv"
+ 
+  # The serialized TF-IDF vectorizer is saved here so notebooks 03 and 04
+  # can load it without having to re-fitt.
+  tfidf_vectorizer: "data/processed/tfidf_vectorizer.pkl"
+ 
+  # The trained model files are saved here by notebook 03. 
+  # They are loaded by notebook 04.
+  saved_models: "data/processed/models/"
+ 
+  # All the plots are saved here to be used in the final report.
+  figures: "reports/figures/"
+
+
+# Dataset
+dataset:
+  # This is the name of the column with the raw email text.
+  text_column: "text_combined"
+ 
+  # THis is the name of the column with the binary label,
+  # where 1 is phishing, 0 is legitimate.
+  label_column: "label"
+ 
+  # THis is the fraction of data reserved for testing.
+  # The remainder is used for training.
+  test_size: 0.2
+ 
+  # This is the fixed seed that makes sure the same train/test split is with every run.
+  # It's critical for reproducibility across all the notebooks.
+  random_seed: 42
+
+
+# Preprocessing
+preprocessing:
+  # We remove words that appear in fewer than this many emails.
+  # We do this because very rare terms are typically noise.
+  tfidf_min_df: 2
+ 
+  # The is the max number of features, words, to keep after TF-IDF vectorization.
+  # This keeps memory manageable without losing any meaningful signal.
+  tfidf_max_features: 5000
+ 
+  # We remove English stopwords, such as the, is, at, etc., during the TF-IDF process.
+  # It's because these words carry no phishing signal.
+  tfidf_stop_words: "english"
+
+
+# Models
+models:
+  # All models here will be trained and compared in notebook 03.
+  # We can comment out any model we want to skip during a run.
+  models_to_train:
+    - "logistic_regression"
+    - "naive_bayes"
+    - "decision_tree"
+    - "knn"
+    - "svm"
+    - "random_forest"
+    - "xgboost"
+    - "mlp"
+ 
+  # We want a shared random seed passed to all models that will accept one.
+  # This is to keep results consistent across runs.
+  random_seed: 42
+ 
+  # Individual model hyperparameters
+
+  # Here are some reasonable starting defaults. We can tune them in
+  # the actual notebook 03 as needed.
+  logistic_regression:
+    max_iter: 1000           # This is enough iterations to ensure convergence on text data.
+    C: 1.0                   # We set the regularization strength. Lower means more regularization.
+ 
+  decision_tree:
+    max_depth: 10            # This is to prevent overfitting on high-dimensional TF-IDF features.
+ 
+  knn:
+    n_neighbors: 5           # This is a standard starting point. We can re-visit after initial results.
+ 
+  random_forest:
+    n_estimators: 100        # Here are the number of trees. More trees is better but will be slower.
+    max_depth: 10
+ 
+  xgboost:
+    n_estimators: 100
+    learning_rate: 0.1       # This is the step size shrinkage. Lower will reduce overfitting risk.
+    max_depth: 6             # This is the XGBoost default. It's a good starting point for text data.
+ 
+  mlp:
+    hidden_layer_sizes: [64, 32]   # Two hidden layers: 64 neurons then 32.
+    max_iter: 300                  # MLP needs more iterations to converge than LR.
+    early_stopping: true           # Stop the training if validation loss stops improving.
+
+
+# Evaluation
+evaluation:
+  # Primary metric used to rank models in the comparison table.
+  # F1 chosen over accuracy because phishing datasets are often imbalanced —
+  # a model that predicts all legitimate still scores high on accuracy.
+  primary_metric: "f1"
+ 
+  # Number of cross-validation folds used when scoring models
+  cv_folds: 5
+ 
+  # Plot ROC curve for all models on a single chart for easy comparison
+  plot_roc_curve: true
+
